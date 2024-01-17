@@ -5,8 +5,9 @@ As a learning project, I will try to solve some of the [AoC](https://adventofcod
 *Disclaimer*: I am Rust beginner, my code will probably be neither idiomatic, nor efficient.
 
 Constraints:
-    + Do not use of external crates. The goal is to learn Rust and to get familiar with the API of it's standard library. This means for example, no regex.
-    + Use efficient algorithms and do the best to implement them efficiently in Rust.
+
+* Do not use of external crates. The goal is to learn Rust and to get familiar with the API of it's standard library. This means for example, no regex.
+* Use efficient algorithms and do the best to implement them efficiently in Rust.
 
 ## Project structure
 

@@ -2,7 +2,7 @@
 
 [Day 1](https://adventofcode.com/2023/day/1) is essentially a parsing task. The only possible gotcha is that the digit names may overlap as in `twoneight`. Rust has no support for regex in it's standard library, but it is as simple as scanning the lines and searching the first and the last digits (or digit names for part 2).
 
-Well, "simple" is not the right word when it comes to strings. Rust takes UTF-8 very seriously. I struggled with the string API but finally decided to work with byte slices. After all, the input is always ASCII and I also suppose that it's faster. Luckily, [as_bytes()](https://doc.rust-lang.org/std/primitive.str.html#method.as_bytes) and [bytes()](https://doc.rust-lang.org/std/primitive.str.html#method.bytes) give handy access to the underlying bytes of a `&str`.
+Well, "simple" is not the right word when it comes to strings. Rust takes UTF-8 very seriously. I struggled with the `&str` API but finally decided to work with byte slices. After all, the input is always ASCII and I also suppose that it's faster. Luckily, [as_bytes()](https://doc.rust-lang.org/std/primitive.str.html#method.as_bytes) and [bytes()](https://doc.rust-lang.org/std/primitive.str.html#method.bytes) give handy access to the underlying bytes of a `&str`.
 
 I struggled a bit with the type of the second parameter of `search_digit()`. At the beginning it was a [`Range`](https://doc.rust-lang.org/std/ops/struct.Range.html) and it worked like a charm with `0..line.len()` but not with `(0..line.len()).rev()` which is not a range but ... an iterator. It took me some time to find the right type bound `impl Iterator<Item = usize>`.
 
@@ -22,4 +22,4 @@ if 0xc6030u32 >> (d - b'a') == 0 {
 }
 ```
 
-prevents from looping on the digit names if the current letter is not among the six possibilities. This dropped the benchmark time from 21 to 17 µs, not a big deal but I think it's a neat hack.
+prevents from looping on the digit names if the current letter is not among the six possibilities. This dropped the benchmark time of Part 2 from 21 to 17 µs, not a big deal but I think it's a neat hack.
