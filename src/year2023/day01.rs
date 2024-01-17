@@ -29,9 +29,16 @@ fn line_value2(line: &str) -> u32 {
 
 fn search_digit(line: &[u8], range: impl Iterator<Item = usize>) -> u8 {
     for i in range {
-        if line[i].is_ascii_digit() {
-            return line[i] - b'0';
+        let d = line[i];
+        if d.is_ascii_digit() {
+            return d - b'0';
         }
+
+        // this hack saves about 4 µs
+        if 0xc6030u32 >> (d - b'a') == 0 {
+            continue;
+        }
+
         for (digit, name) in DIGIT_NAMES.iter().enumerate() {
             if line[i..].starts_with(name) {
                 return (digit + 1) as u8;
