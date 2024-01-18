@@ -20,7 +20,7 @@ const INPUT: &str = include_str!("../../data/yearYYYY/dayDD/input.txt");
 
 pub fn solve(part: Part, input: Option<&str>) -> u32 {
     let lines = input.unwrap_or(INPUT).lines();
-    todo()!
+    todo!();
 }
 
 #[cfg(test)]
