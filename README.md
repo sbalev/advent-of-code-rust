@@ -54,4 +54,4 @@ Measured by `cargo bench` on Intel(R) Core(TM) i7-1365U.
 |                                    Day|Part 1 (µs)|Part 2 (µs)|Total (µs)|
 |-------------------------------------:|----------:|----------:|---------:|
 |[01](comments/2023/day01.md "comment")|         15|         17|        32|
-|02                                    |          6|         10|        16|
+|[02](comments/2023/day02.md "comment")|          6|         10|        16|
