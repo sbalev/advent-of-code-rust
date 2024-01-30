@@ -1,8 +1,3 @@
-pub enum Part {
-    One,
-    Two,
-}
-
 pub mod util {
     pub mod grid;
 }

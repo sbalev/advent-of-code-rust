@@ -11,16 +11,17 @@ Constraints:
 
 ## Project structure
 
-For the moment, the code is organized as follows, but this organization could change in the future. The crate has modules `yearYYYY` for each year with submodules `dayDD` for each day. A module `util` with some commonly used utilities will be added in the future. I will try to keep the same structure for each day :
+For the moment, the code is organized as follows, but this organization could change in the future. The crate has modules `yearYYYY` for each year with submodules `dayDD` for each day. A module `util` contains some commonly used tools. I will try to keep the same structure for each day :
 
 ```rust
-use crate::Part;
-
 const INPUT: &str = include_str!("../../data/yearYYYY/dayDD/input.txt");
 
-pub fn solve(part: Part, input: Option<&str>) -> u32 {
-    let lines = input.unwrap_or(INPUT).lines();
-    todo!();
+pub fn solve() -> (u32, u32) {
+    solve_input(INPUT)
+}
+
+pub fn solve_input(input: &str) -> (u32, u32) {
+    (0, 0)
 }
 
 #[cfg(test)]
@@ -28,30 +29,25 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_part1() {
+    fn test() {
         let example = "";
-        assert_eq!(0, solve(Part::One, Some(example)));
-    }
-
-    #[test]
-    fn test_part2() {
-        let example = "";
-        assert_eq!(0, solve(Part::Two, Some(example)));
+        assert_eq!(0, solve_input(example));
     }
 }
 ```
 
 The input is not read from a file but directly integrated in the binary.
 
-The first parameter of `solve()` is an enum with variants `One` and `Two`. The second parameter is used by the unit tests to pass the small examples. When it is `None`, the real `INPUT` is used instead.
+The `solve_input()` function can be called passing either the small examples for testing or the real input.
 
 ## Benchmarks
 
-Measured by `cargo bench` on Intel(R) Core(TM) i7-1365U.
+Measured by `cargo bench` on Intel(R) Core(TM) i7-1365U with `RUSTFLAGS="-C target-cpu=native"`.
 
 ### 2023
 
-|                                    Day|Part 1 (µs)|Part 2 (µs)|Total (µs)|
-|-------------------------------------:|----------:|----------:|---------:|
-|[01](comments/2023/day01.md "comment")|         15|         17|        32|
-|[02](comments/2023/day02.md "comment")|          6|         10|        16|
+|                                   Day|Time (µs)|
+|-------------------------------------:|--------:|
+|[01](comments/2023/day01.md "comment")|       32|
+|[02](comments/2023/day02.md "comment")|       10|
+|03                                    |       70|

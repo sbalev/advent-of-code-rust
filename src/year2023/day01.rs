@@ -1,17 +1,18 @@
-use crate::Part;
-
 const INPUT: &str = include_str!("../../data/year2023/day01/input.txt");
 
 const DIGIT_NAMES: [&[u8]; 9] = [
     b"one", b"two", b"three", b"four", b"five", b"six", b"seven", b"eight", b"nine",
 ];
 
-pub fn solve(part: Part, input: Option<&str>) -> u32 {
-    let eval = match part {
-        Part::One => line_value1,
-        Part::Two => line_value2,
-    };
-    input.unwrap_or(INPUT).lines().map(eval).sum()
+pub fn solve() -> (u32, u32) {
+    solve_input(INPUT)
+}
+
+pub fn solve_input(input: &str) -> (u32, u32) {
+    let lines: Vec<_> = input.lines().collect();
+    let part1 = lines.iter().map(|l| line_value1(l)).sum();
+    let part2 = lines.iter().map(|l| line_value2(l)).sum();
+    (part1, part2)
 }
 
 fn line_value1(line: &str) -> u32 {
@@ -34,8 +35,8 @@ fn search_digit(line: &[u8], range: impl Iterator<Item = usize>) -> u8 {
             return d - b'0';
         }
 
-        // this hack saves about 4 µs
-        if 0xc6030u32 >> (d - b'a') == 0 {
+        // this hack saves about 3 µs
+        if 0xc6030u32 & (1 << (d - b'a')) == 0 {
             continue;
         }
 
@@ -53,21 +54,17 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_part1() {
-        let example = "\
+    fn test() {
+        let example1 = "\
 1abc2
 pqr3stu8vwx
 a1b2c3d4e5f
 treb7uchet
 ";
-        let values: Vec<_> = example.lines().map(line_value1).collect();
+        let values: Vec<_> = example1.lines().map(line_value1).collect();
         assert_eq!(vec![12, 38, 15, 77], values);
-        assert_eq!(142, solve(Part::One, Some(example)));
-    }
 
-    #[test]
-    fn test_part2() {
-        let example = "\
+        let example2 = "\
 two1nine
 eightwothree
 abcone2threexyz
@@ -76,8 +73,7 @@ xtwone3four
 zoneight234
 7pqrstsixteen
 ";
-        let values: Vec<_> = example.lines().map(line_value2).collect();
+        let values: Vec<_> = example2.lines().map(line_value2).collect();
         assert_eq!(vec![29, 83, 13, 24, 42, 14, 76], values);
-        assert_eq!(281, solve(Part::Two, Some(example)));
     }
 }

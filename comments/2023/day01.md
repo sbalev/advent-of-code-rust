@@ -17,9 +17,9 @@ Finally, looking for some low level optimizations, I considered implementing som
 So
 
 ```rust
-if 0xc6030u32 >> (d - b'a') == 0 {
+if 0xc6030u32 & (1 << (d - b'a')) == 0 {
     continue;
 }
 ```
 
-prevents from looping on the digit names if the current letter is not among the six possibilities. This dropped the benchmark time of Part 2 from 21 to 17 µs, not a big deal but I think it's a neat hack.
+prevents from looping on the digit names if the current letter is not among the six possibilities. This saved about 3 µs, not a big deal but I think it's a neat hack.
