@@ -18,10 +18,19 @@ pub fn solve_input(input: &str) -> (u32, u32) {
 
 fn max_rgb(game: &str) -> (u32, u32, u32) {
     let (mut r, mut g, mut b) = (0, 0, 0);
-    let mut it = game.split_ascii_whitespace().skip(2);
+    /*let mut it = game.split_ascii_whitespace().skip(2);
     while let Some(val) = it.next() {
         let val: u32 = val.parse().unwrap();
         match it.next().unwrap().as_bytes()[0] {
+            b'r' => r = r.max(val),
+            b'g' => g = g.max(val),
+            b'b' => b = b.max(val),
+            _ => (),
+        }
+    }*/
+    for [val, col] in game.split_ascii_whitespace().array_chunks::<2>().skip(1) {
+        let val: u32 = val.parse().unwrap();
+        match col.as_bytes()[0] {
             b'r' => r = r.max(val),
             b'g' => g = g.max(val),
             b'b' => b = b.max(val),

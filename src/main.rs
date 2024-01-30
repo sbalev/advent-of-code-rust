@@ -1,3 +1,3 @@
 fn main() {
-    println!("{:?}", aoc::year2023::day03::solve());
+    println!("{:?}", aoc::year2023::day02::solve());
 }
