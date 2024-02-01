@@ -69,7 +69,7 @@ pub fn solve_input(input: &str) -> (u32, u32) {
 
 fn check_number(grid: &mut MyGrid, i: usize, j_start: usize, j_end: usize, num: u32) -> bool {
     let mut is_part = false;
-    let mut update = |i, j: usize| match grid[i][j] {
+    let mut update = |i, j| match grid[i][j] {
         Cell::Gear(count, prod) => {
             is_part = true;
             grid[i][j] = Cell::Gear(count + 1, prod * num);
