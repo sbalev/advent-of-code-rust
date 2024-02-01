@@ -2,18 +2,21 @@ use crate::util::grid::Grid;
 
 const INPUT: &str = include_str!("../../data/year2023/day03/input.txt");
 
-struct Cell {
-    byte: u8,
-    part_count: u32,
-    part_prod: u32,
+#[derive(PartialEq, Debug)]
+enum Cell {
+    Digit(u32),
+    Gear(u32, u32),
+    Symbol,
+    Empty,
 }
 
 impl From<u8> for Cell {
     fn from(byte: u8) -> Self {
-        Cell {
-            byte,
-            part_count: 0,
-            part_prod: 1,
+        match byte {
+            b'0'..=b'9' => Self::Digit((byte - b'0') as u32),
+            b'*' => Self::Gear(0, 1),
+            b'.' => Self::Empty,
+            _ => Self::Symbol,
         }
     }
 }
@@ -25,68 +28,65 @@ pub fn solve() -> (u32, u32) {
 }
 
 pub fn solve_input(input: &str) -> (u32, u32) {
-    let mut grid = MyGrid::parse(input);
+    let mut grid = MyGrid::parse(input, b'.');
     let mut part1 = 0;
-    for i in 1..=grid.m {
+    for i in 1..=grid.m - 1 {
         let mut parsing = false;
-        let mut num: u32 = 0;
-        let mut j_start = 1;
-        for j in 1..=grid.n {
-            let b = grid.get(i, j).byte;
-            if parsing {
-                if b.is_ascii_digit() {
-                    num = 10 * num + ((b - b'0') as u32);
-                } else {
-                    // found number
-                    if is_part(&mut grid, i, j_start, j - 1, num) {
-                        part1 += num;
+        let mut num = 0;
+        let mut j_start = 0;
+        for j in 1..=grid.n - 1 {
+            match grid[i][j] {
+                Cell::Digit(d) => {
+                    num = num * 10 + d;
+                    if !parsing {
+                        parsing = true;
+                        j_start = j;
                     }
-                    // println!("line {}: found {} form {} to {}", i, num, j_start, j - 1);
-                    parsing = false;
                 }
-            } else if b.is_ascii_digit() {
-                // start a new number
-                parsing = true;
-                num = (b - b'0') as u32;
-                j_start = j;
+                _ => {
+                    if parsing {
+                        //println!("line {i}: found {num} from {j_start} to {j}");
+                        if check_number(&mut grid, i, j_start, j - 1, num) {
+                            part1 += num;
+                        }
+                        parsing = false;
+                        num = 0;
+                    }
+                }
             }
-        }
-        if parsing {
-            // found number at the end of a line
-            let m = grid.m;
-            if is_part(&mut grid, i, j_start, m, num) {
-                part1 += num;
-            }
-            // println!("line {}: found {} form {} to {}", i, num, j_start, grid.m);
         }
     }
     let part2 = grid
         .cells
         .iter()
-        .filter(|c| c.byte == b'*' && c.part_count == 2)
-        .map(|c| c.part_prod)
+        .map(|c| match c {
+            Cell::Gear(count, prod) if *count == 2 => *prod,
+            _ => 0,
+        })
         .sum();
     (part1, part2)
 }
 
-fn is_part(grid: &mut MyGrid, line: usize, j_start: usize, j_end: usize, num: u32) -> bool {
-    let mut symbol_count = 0;
-    for i in line - 1..=line + 1 {
-        for j in j_start - 1..=j_end + 1 {
-            if grid.is_inside(i, j) {
-                let cell = grid.get_mut(i, j);
-                if cell.byte != b'.' && !cell.byte.is_ascii_digit() {
-                    symbol_count += 1;
-                    // side effect for part 2
-                    if cell.byte == b'*' {
-                        cell.part_count += 1;
-                        cell.part_prod *= num;
-                    }
-                }
-            }
+fn check_number(grid: &mut MyGrid, i: usize, j_start: usize, j_end: usize, num: u32) -> bool {
+    let mut is_part = false;
+    let mut update = |i, j: usize| match grid[i][j] {
+        Cell::Gear(count, prod) => {
+            is_part = true;
+            grid[i][j] = Cell::Gear(count + 1, prod * num);
         }
+        Cell::Symbol => {
+            is_part = true;
+        }
+        _ => (),
+    };
+
+    for j in j_start - 1..=j_end + 1 {
+        update(i - 1, j);
+        update(i + 1, j);
     }
-    symbol_count > 0
+    update(i, j_start - 1);
+    update(i, j_end + 1);
+    is_part
 }
 
 #[cfg(test)]
@@ -107,6 +107,11 @@ mod tests {
 ...$.*....
 .664.598..
 ";
+        let mut grid = MyGrid::parse(example, b'.');
+        assert!(check_number(&mut grid, 1, 1, 3, 467));
+        assert!(!check_number(&mut grid, 1, 6, 8, 114));
+        assert!(check_number(&mut grid, 3, 3, 4, 35));
+        assert_eq!(Cell::Gear(2, 16345), grid[2][4]);
         assert_eq!((4361, 467835), solve_input(example));
     }
 }
