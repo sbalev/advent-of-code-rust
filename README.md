@@ -31,7 +31,7 @@ mod tests {
     #[test]
     fn test() {
         let example = "";
-        assert_eq!(0, solve_input(example));
+        assert_eq!((0, 0), solve_input(example));
     }
 }
 ```
@@ -51,3 +51,4 @@ Measured by `cargo bench` on Intel(R) Core(TM) i7-1365U with `RUSTFLAGS="-C targ
 |[01](comments/2023/day01.md "comment")|       32|
 |[02](comments/2023/day02.md "comment")|       10|
 |[03](comments/2023/day03.md "comment")|       68|
+|[04](comments/2023/day04.md "comment")|       40|

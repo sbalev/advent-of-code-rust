@@ -20,4 +20,9 @@ mod benches {
     fn bench_year2023_day03(b: &mut Bencher) {
         b.iter(|| year2023::day03::solve());
     }
+
+    #[bench]
+    fn bench_year2023_day04(b: &mut Bencher) {
+        b.iter(|| year2023::day04::solve());
+    }
 }
