@@ -53,3 +53,4 @@ Measured by `cargo bench` on Intel(R) Core(TM) i7-1365U with `RUSTFLAGS="-C targ
 |[03](comments/2023/day03.md "comment")|       68|
 |[04](comments/2023/day04.md "comment")|       40|
 |[05](comments/2023/day05.md "comment")|       12|
+|[06](comments/2023/day06.md "comment")|        0|
