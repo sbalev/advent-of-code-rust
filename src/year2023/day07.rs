@@ -8,12 +8,11 @@ struct Hand {
 }
 
 impl Hand {
-    fn parse(desc: &str, with_jokers: bool) -> Self {
+    fn parse(desc: &str) -> Self {
         let mut strengths = [0; 5];
         for i in 0..5 {
-             strengths[i] = match desc.as_bytes()[i] {
+            strengths[i] = match desc.as_bytes()[i] {
                 b'T' => 10,
-                b'J' if with_jokers => 1,
                 b'J' => 11,
                 b'Q' => 12,
                 b'K' => 13,
@@ -27,13 +26,8 @@ impl Hand {
         for s in strengths {
             counts[s as usize] += 1;
         }
-        let mut jokers = 0;
-        if with_jokers {
-            jokers = counts[1];
-            counts[1] = 0;
-        }
-        counts.sort_unstable();
-        let value = 10 * (counts[14] + jokers) + counts[13];
+        counts[2..].sort_unstable();
+        let value = 10 * counts[14] + counts[13];
 
         Self {
             value,
@@ -41,14 +35,23 @@ impl Hand {
             bid,
         }
     }
+
+    fn consider_jokers(&mut self) {
+        self.strengths
+            .iter_mut()
+            .filter(|s| **s == 11)
+            .for_each(|s| *s = 1);
+
+        let mut counts = [0u8; 15];
+        for s in self.strengths {
+            counts[s as usize] += 1;
+        }
+        counts[2..].sort_unstable();
+        self.value = 10 * (counts[14] + counts[1]) + counts[13];
+    }
 }
 
-fn solve_part(input: &str, part: u8) -> u32 {
-    let mut hands: Vec<_> = input
-        .lines()
-        .map(|line| Hand::parse(line, part == 2))
-        .collect();
-    hands.sort_unstable();
+fn total_winnings(hands: &[Hand]) -> u32 {
     hands
         .iter()
         .enumerate()
@@ -61,7 +64,15 @@ pub fn solve() -> (u32, u32) {
 }
 
 pub fn solve_input(input: &str) -> (u32, u32) {
-    (solve_part(input, 1), solve_part(input, 2))
+    let mut hands: Vec<_> = input.lines().map(Hand::parse).collect();
+    hands.sort_unstable();
+    let part1 = total_winnings(&hands);
+
+    hands.iter_mut().for_each(|h| h.consider_jokers());
+    hands.sort_unstable();
+    let part2 = total_winnings(&hands);
+
+    (part1, part2)
 }
 
 #[cfg(test)]
