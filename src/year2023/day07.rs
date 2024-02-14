@@ -5,11 +5,25 @@ struct Hand {
     value: u8,
     strengths: [u8; 5],
     bid: u32,
+    value2: u8,
+}
+
+fn hand_value(mc: &[u8]) -> u8 {
+    match mc {
+        [.., 1] => 6,    // five of a kind
+        [.., 1, 0] => 5, // four of a kind
+        [0, ..] => 4,    // full house
+        [2, ..] => 3,    // three of a kind
+        [1, ..] => 2,    // two pair
+        [3, ..] => 1,    // one pair
+        _ => 0,          // high card
+    }
 }
 
 impl Hand {
     fn parse(desc: &str) -> Self {
         let mut strengths = [0; 5];
+        let mut counts = [0; 15];
         for i in 0..5 {
             strengths[i] = match desc.as_bytes()[i] {
                 b'T' => 10,
@@ -18,21 +32,35 @@ impl Hand {
                 b'K' => 13,
                 b'A' => 14,
                 digit => digit - b'0',
-            }
+            };
+            counts[strengths[i] as usize] += 1;
         }
         let bid = desc.split_at(6).1.parse().unwrap();
 
-        let mut counts = [0u8; 15];
-        for s in strengths {
-            counts[s as usize] += 1;
+        let mut meta_counts = [0u8; 6];
+        for c in counts {
+            meta_counts[c] += 1;
         }
-        counts[2..].sort_unstable();
-        let value = 10 * counts[14] + counts[13];
+        let value = hand_value(&meta_counts[1..]);
+
+        let value2 = if counts[11] > 0 {
+            meta_counts[counts[11]] -= 1;
+            let mut i = 4;
+            while meta_counts[i] == 0 {
+                i -= 1;
+            }
+            meta_counts[i] -= 1;
+            meta_counts[i + counts[11]] += 1;
+            hand_value(&meta_counts[1..])
+        } else {
+            value
+        };
 
         Self {
             value,
             strengths,
             bid,
+            value2,
         }
     }
 
@@ -42,12 +70,7 @@ impl Hand {
             .filter(|s| **s == 11)
             .for_each(|s| *s = 1);
 
-        let mut counts = [0u8; 15];
-        for s in self.strengths {
-            counts[s as usize] += 1;
-        }
-        counts[2..].sort_unstable();
-        self.value = 10 * (counts[14] + counts[1]) + counts[13];
+        self.value = self.value2;
     }
 }
 
