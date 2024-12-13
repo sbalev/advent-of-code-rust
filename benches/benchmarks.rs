@@ -31,12 +31,12 @@ mod benches {
         b.iter(|| year2023::day05::solve());
     }
 
-   #[bench]
+    #[bench]
     fn bench_year2023_day06(b: &mut Bencher) {
         b.iter(|| year2023::day06::solve());
     }
 
-   #[bench]
+    #[bench]
     fn bench_year2023_day07(b: &mut Bencher) {
         b.iter(|| year2023::day07::solve());
     }
@@ -44,5 +44,10 @@ mod benches {
     #[bench]
     fn bench_year2024_day01(b: &mut Bencher) {
         b.iter(|| year2024::day01::solve());
+    }
+
+    #[bench]
+    fn bench_year2024_day02(b: &mut Bencher) {
+        b.iter(|| year2024::day02::solve());
     }
 }
