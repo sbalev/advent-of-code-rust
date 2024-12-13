@@ -2,14 +2,12 @@ const INPUT: &str = include_str!("../../data/year2023/day07/input.txt");
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 struct Hand {
-    value: u8,
-    strengths: [u8; 5],
+    strengths: usize,
     bid: u32,
-    value2: u8,
 }
 
-fn hand_value(mc: &[u8]) -> u8 {
-    match mc {
+fn hand_value(meta_counts: &[u8]) -> usize {
+    match meta_counts {
         [.., 1] => 6,    // five of a kind
         [.., 1, 0] => 5, // four of a kind
         [0, ..] => 4,    // full house
@@ -20,65 +18,67 @@ fn hand_value(mc: &[u8]) -> u8 {
     }
 }
 
-impl Hand {
-    fn parse(desc: &str) -> Self {
-        let mut strengths = [0; 5];
+fn parse(input: &str) -> (Vec<Vec<Hand>>, Vec<Vec<Hand>>) {
+    let mut v1 = Vec::with_capacity(7);
+    let mut v2 = Vec::with_capacity(7);
+    for _ in 0..7 {
+        v1.push(Vec::new());
+        v2.push(Vec::new());
+    }
+
+    for line in input.lines() {
+        let bid = line.split_at(6).1.parse().unwrap();
+        let mut strengths = 0;
+        let mut strengths2 = 0;
         let mut counts = [0; 15];
         for i in 0..5 {
-            strengths[i] = match desc.as_bytes()[i] {
+            let mut s = match line.as_bytes()[i] {
                 b'T' => 10,
                 b'J' => 11,
                 b'Q' => 12,
                 b'K' => 13,
                 b'A' => 14,
                 digit => digit - b'0',
-            };
-            counts[strengths[i] as usize] += 1;
+            } as usize;
+            counts[s] += 1;
+            strengths = (strengths << 4) | s;
+            if s == 11 {
+                s = 1;
+            }
+            strengths2 = (strengths2 << 4) | s;
         }
-        let bid = desc.split_at(6).1.parse().unwrap();
-
-        let mut meta_counts = [0u8; 6];
-        for c in counts {
-            meta_counts[c] += 1;
+        let mut meta_counts = [0; 6];
+        for c in &counts[2..] {
+            meta_counts[*c] += 1;
         }
-        let value = hand_value(&meta_counts[1..]);
+        let mut value = hand_value(&meta_counts[1..]);
+        v1[value].push(Hand { strengths, bid });
 
-        let value2 = if counts[11] > 0 {
+        if counts[11] > 0 {
             meta_counts[counts[11]] -= 1;
-            let mut i = 4;
+            let mut i = 5 - counts[11];
             while meta_counts[i] == 0 {
                 i -= 1;
             }
             meta_counts[i] -= 1;
             meta_counts[i + counts[11]] += 1;
-            hand_value(&meta_counts[1..])
-        } else {
-            value
-        };
-
-        Self {
-            value,
-            strengths,
-            bid,
-            value2,
+            value = hand_value(&meta_counts[1..]);
         }
+        v2[value].push(Hand {
+            strengths: strengths2,
+            bid,
+        });
     }
 
-    fn consider_jokers(&mut self) {
-        self.strengths
-            .iter_mut()
-            .filter(|s| **s == 11)
-            .for_each(|s| *s = 1);
-
-        self.value = self.value2;
-    }
+    (v1, v2)
 }
 
-fn total_winnings(hands: &[Hand]) -> u32 {
+fn total_winnings(hands: &[Vec<Hand>]) -> u32 {
     hands
         .iter()
+        .flatten()
         .enumerate()
-        .map(|(r, h)| ((r + 1) as u32) * h.bid)
+        .map(|(r, h)| (r as u32 + 1) * h.bid)
         .sum()
 }
 
@@ -87,15 +87,11 @@ pub fn solve() -> (u32, u32) {
 }
 
 pub fn solve_input(input: &str) -> (u32, u32) {
-    let mut hands: Vec<_> = input.lines().map(Hand::parse).collect();
-    hands.sort_unstable();
-    let part1 = total_winnings(&hands);
-
-    hands.iter_mut().for_each(|h| h.consider_jokers());
-    hands.sort_unstable();
-    let part2 = total_winnings(&hands);
-
-    (part1, part2)
+    let (mut v1, mut v2) = parse(input);
+    v1.iter_mut()
+        .chain(v2.iter_mut())
+        .for_each(|v| v.sort_unstable());
+    (total_winnings(&v1), total_winnings(&v2))
 }
 
 #[cfg(test)]
